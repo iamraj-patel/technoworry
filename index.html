@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technoworry - Your Worry-Free IT Partner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #FF5E00; /* Cyber Orange */
+            --secondary-color: #00B2FF; /* Electric Blue */
+            --background-color: #0a0a0a;
+            --text-color: #ffffff;
+            --text-muted-color: #a0a0a0;
+            --card-bg-color: rgba(255, 255, 255, 0.03);
+            --border-color: rgba(255, 94, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- Animated Backgrounds --- */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 25% 25%, transparent 2%, rgba(255, 94, 0, 0.03) 2%, rgba(255, 94, 0, 0.03) 3%, transparent 3%),
+                radial-gradient(circle at 75% 75%, transparent 2%, rgba(0, 178, 255, 0.03) 2%, rgba(0, 178, 255, 0.03) 3%, transparent 3%);
+            background-size: 80px 80px;
+            animation: grid-move 30s linear infinite;
+            z-index: -2;
+        }
+
+        .gradient-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(255, 94, 0, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 50%, rgba(0, 178, 255, 0.1) 0%, transparent 40%);
+            z-index: -1;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: linear-gradient(transparent 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            animation: scanlines-anim 8s linear infinite;
+            z-index: 10;
+        }
+        
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 1;
+        }
+        .particle::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color);
+            animation: float-up 15s linear infinite;
+        }
+
+        @keyframes grid-move { from { transform: translate(0, 0); } to { transform: translate(80px, 80px); } }
+        @keyframes scanlines-anim { from { background-position: 0 0; } to { background-position: 0 100%; } }
+        @keyframes float-up {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* --- Navigation --- */
+        #navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        #navbar.scrolled {
+            padding: 15px 50px;
+            background: rgba(10, 10, 10, 0.95);
+            box-shadow: 0 5px 30px rgba(255, 94, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-link {
+            text-decoration: none;
+            font-family: 'Orbitron', monospace;
+            font-size: 24px;
+            font-weight: 900;
+        }
+        
+        .logo-text {
+            color: var(--text-color);
+        }
+
+        .logo-text span {
+             background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            position: relative;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            opacity: 1;
+            color: var(--primary-color);
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s ease;
+        }
+        .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+
+        .menu-toggle { display: none; }
+
+        /* --- Hero Section --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 20px 20px;
+        }
+
+        .hero-content {
+            max-width: 1000px;
+            z-index: 5;
+        }
+        
+        .glitch-text {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 900;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 20px rgba(255, 94, 0, 0.5);
+        }
+
+        .glitch-text::before, .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch-text::before { animation: glitch-1 0.8s infinite; color: var(--primary-color); z-index: -1; }
+        .glitch-text::after { animation: glitch-2 0.8s infinite; color: var(--secondary-color); z-index: -1; }
+        
+        .subtitle {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            margin: 20px 0 40px;
+            opacity: 0.8;
+            font-weight: 300;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-button {
+            padding: 12px 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 30px rgba(255, 94, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        .cta-button:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(255, 94, 0, 0.8); }
+
+        /* --- General Section Styling --- */
+        section {
+            padding: 100px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 60px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        /* --- Services Section --- */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 40px rgba(255, 94, 0, 0.3);
+            border-color: var(--primary-color);
+        }
+        .service-card svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 20px;
+            stroke: var(--primary-color);
+        }
+        .service-card h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+        .service-card p {
+            line-height: 1.6;
+            color: var(--text-muted-color);
+        }
+
+        /* --- Why Us Section --- */
+        .why-us-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+        .why-us-text h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        .why-us-text p {
+            line-height: 1.8;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+        .why-us-list {
+            list-style: none;
+        }
+        .why-us-list li {
+            padding-left: 30px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+        .why-us-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+        .why-us-visual {
+            position: relative;
+            height: 350px;
+            border: 2px solid var(--secondary-color);
+            box-shadow: 0 0 30px rgba(0, 178, 255, 0.3);
+        }
+        .why-us-visual img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .why-us-visual .img-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, rgba(255, 94, 0, 0.2), rgba(0, 178, 255, 0.2));
+            mix-blend-mode: hard-light;
+        }
+
+        /* --- Contact Section --- */
+        .contact-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group { margin-bottom: 25px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .form-group select option {
+            background: var(--background-color);
+            color: var(--text-color);
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 20px rgba(255, 94, 0, 0.3);
+        }
+        .form-group textarea { min-height: 120px; resize: vertical; }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        /* --- Footer --- */
+        footer {
+            background: rgba(0, 0, 0, 0.8);
+            border-top: 1px solid var(--border-color);
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .copyright { opacity: 0.6; font-size: 0.9rem; }
+        
+        /* --- Notification --- */
+        #notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(200%);
+            padding: 1rem 2rem;
+            color: white;
+            z-index: 1001;
+            transition: transform 0.5s ease-in-out;
+            font-family: 'Orbitron', monospace;
+            border: 1px solid;
+            box-shadow: 0 0 20px;
+        }
+        #notification.show { transform: translateX(-50%) translateY(0); }
+
+        /* --- Animations --- */
+        @keyframes glow {
+            0%, 100% { filter: brightness(1); text-shadow: 0 0 20px var(--primary-color); }
+            50% { filter: brightness(1.5); text-shadow: 0 0 30px var(--primary-color); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(255, 94, 0, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(255, 94, 0, 0.8); }
+        }
+        @keyframes glitch-1 { 0%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); } 20% { clip-path: inset(33% 0 33% 0); transform: translate(-2px); } 40% { clip-path: inset(66% 0 0 0); transform: translate(2px); } 60% { clip-path: inset(0 0 66% 0); transform: translate(1px); } 80% { clip-path: inset(25% 0 50% 0); transform: translate(-1px); } }
+        @keyframes glitch-2 { 0%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); } 20% { clip-path: inset(50% 0 25% 0); transform: translate(2px); } 40% { clip-path: inset(0 0 75% 0); transform: translate(-2px); } 60% { clip-path: inset(75% 0 0 0); transform: translate(-1px); } 80% { clip-path: inset(40% 0 40% 0); transform: translate(1px); } }
+        
+        /* --- Responsive Design --- */
+        @media (max-width: 992px) {
+            .why-us-content {
+                grid-template-columns: 1fr;
+            }
+            .why-us-content:last-of-type .why-us-visual {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #navbar { padding: 15px 20px; }
+            .nav-links {
+                position: fixed;
+                top: 67px; /* Adjust based on new navbar height */
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 67px);
+                background: rgba(10, 10, 10, 0.98);
+                flex-direction: column;
+                align-items: center;
+                padding-top: 50px;
+                transition: left 0.3s ease;
+                z-index: 999;
+            }
+            .nav-links.active { left: 0; }
+            .menu-toggle {
+                display: flex;
+                flex-direction: column;
+                cursor: pointer;
+                gap: 5px;
+            }
+            .menu-toggle span {
+                width: 25px;
+                height: 2px;
+                background: var(--primary-color);
+                transition: all 0.3s ease;
+            }
+            .menu-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+            .menu-toggle.active span:nth-child(2) { opacity: 0; }
+            .menu-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+            .section-title { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Animated Backgrounds -->
+    <div class="grid-bg"></div>
+    <div class="gradient-overlay"></div>
+    <div class="scanlines"></div>
+    <div id="particles"></div>
+
+    <!-- Navigation -->
+    <header id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo-link">
+                <div class="logo-text">Techno<span>worry</span></div>
+            </a>
+            <nav>
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="#services" class="nav-link">Services</a></li>
+                    <li><a href="#why-us" class="nav-link">Why Us</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="menu-toggle" id="menuToggle">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="hero-content">
+                <h1 class="glitch-text" data-text="Seamless IT Solutions">Seamless IT Solutions</h1>
+                <p class="subtitle">
+                    From server hosting to web development, Technoworry is your dedicated partner in navigating the complexities of IT. We handle the tech, so you can focus on your business.
+                </p>
+                <a href="#contact" class="cta-button">Get a Free Consultation</a>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services">
+            <h2 class="section-title">Our Services</h2>
+            <div class="services-grid">
+                <!-- Service 1 -->
+                <div class="service-card">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>
+                    <h3>Server Hosting</h3>
+                    <p>Reliable and secure hosting for your Windows and Linux servers, ensuring high availability and performance.</p>
+                </div>
+                <!-- Service 2 -->
+                <div class="service-card">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    <h3>Exchange Online</h3>
+                    <p>Expert setup and management of Microsoft Exchange Online for seamless business communication.</p>
+                </div>
+                <!-- Service 3 -->
+                <div class="service-card">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>
+                    <h3>Networking Solutions</h3>
+                    <p>Designing and implementing robust and secure network infrastructures for your organization.</p>
+                </div>
+                <!-- Service 4 -->
+                <div class="service-card">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L8.6 3.3a2 2 0 0 0-1.7-.9H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z"/><circle cx="12" cy="13" r="2"/><path d="M12 10v1"/><path d="M12 15v1"/><path d="m14.6 11.5-.88.5"/><path d="m9.4 14.5-.88.5"/><path d="m14.6 14.5.88.5"/><path d="m9.4 11.5.88.5"/></svg>
+                    <h3>GPO & Patch Management</h3>
+                    <p>Efficient Group Policy Object configuration and automated patch management to keep your systems secure.</p>
+                </div>
+                <!-- Service 5 -->
+                <div class="service-card">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                    <h3>Web Hosting</h3>
+                    <p>Fast, secure, and reliable web hosting solutions with excellent uptime and support.</p>
+                </div>
+                <!-- Service 6 -->
+                <div class="service-card">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
+                    <h3>Web Development</h3>
+                    <p>Basic web development services to create a professional online presence for your business.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why Us Section -->
+        <section id="why-us">
+            <h2 class="section-title">Why Partner With Us?</h2>
+            <div class="why-us-content">
+                <div class="why-us-text">
+                    <h3>Proactive Support & Monitoring</h3>
+                    <p>We don't just fix problems; we prevent them. Our 24/7 monitoring systems identify potential issues before they impact your business, ensuring maximum uptime and productivity.</p>
+                    <ul class="why-us-list">
+                        <li>24/7 System Health Checks</li>
+                        <li>Rapid Response Times</li>
+                        <li>Preventative Maintenance</li>
+                    </ul>
+                </div>
+                <div class="why-us-visual">
+                    <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop" alt="IT professionals collaborating">
+                    <div class="img-overlay"></div>
+                </div>
+            </div>
+            <div class="why-us-content">
+                <div class="why-us-visual">
+                     <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop" alt="Data analysis dashboard">
+                     <div class="img-overlay"></div>
+                </div>
+                <div class="why-us-text">
+                    <h3>Expertise and Scalability</h3>
+                    <p>Our team of certified professionals brings years of experience. As your business grows, our services scale with you, providing the support you need at every stage.</p>
+                    <ul class="why-us-list">
+                       <li>Certified and Experienced Team</li>
+                       <li>Customized IT Roadmaps</li>
+                       <li>Flexible and Scalable Solutions</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Contact Section -->
+        <section id="contact">
+            <h2 class="section-title">Get In Touch</h2>
+            <div class="contact-container">
+                <form id="contact-form">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                     <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" name="phone" id="phone" required placeholder="(xxx) xxx-xxxx">
+                    </div>
+                    <div class="form-group">
+                        <label for="service">Service of Interest</label>
+                        <select id="service" name="service">
+                            <option>General Inquiry</option>
+                            <option>Server Hosting</option>
+                            <option>Exchange Online</option>
+                            <option>Networking</option>
+                            <option>GPO & Patch Management</option>
+                            <option>Web Hosting & Development</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn cta-button">Send Message</button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- Footer -->
+    <footer>
+        <p class="copyright">&copy; 2025 Technoworry. All rights reserved. Your Worry-Free IT Partner</p>
+    </footer>
+
+    <!-- Notification Element -->
+    <div id="notification"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Particle Creation ---
+            function createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                if (!particlesContainer) return;
+                const particleCount = 30;
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 15 + 's';
+                    particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                    if (Math.random() > 0.5) {
+                        particle.style.setProperty('--particle-color', 'var(--secondary-color)');
+                    }
+                    particlesContainer.appendChild(particle);
+                }
+            }
+            createParticles();
+            
+            // --- Mobile Menu ---
+            const menuToggle = document.getElementById('menuToggle');
+            const navLinks = document.getElementById('navLinks');
+            menuToggle.addEventListener('click', () => {
+                menuToggle.classList.toggle('active');
+                navLinks.classList.toggle('active');
+            });
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    menuToggle.classList.remove('active');
+                    navLinks.classList.remove('active');
+                });
+            });
+
+            // --- Navbar Scroll & Active Link ---
+            const navbar = document.getElementById('navbar');
+            const sections = document.querySelectorAll('section');
+            const navItems = document.querySelectorAll('.nav-link');
+
+            function updateActiveNav() {
+                const scrollPosition = window.pageYOffset + 150;
+                let currentSectionId = 'home';
+
+                sections.forEach(section => {
+                     if (scrollPosition >= section.offsetTop) {
+                        currentSectionId = section.id;
+                    }
+                });
+                
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('href') === `#${currentSectionId}`) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+                updateActiveNav();
+            });
+            updateActiveNav();
+
+            // --- EmailJS ---
+            emailjs.init({ publicKey: "F77TKHcm_sqghEceg" });
+
+            const contactForm = document.getElementById('contact-form');
+            contactForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const btn = this.querySelector('button[type="submit"]');
+                const btnOriginalText = btn.innerHTML;
+                btn.innerHTML = 'Sending...';
+                btn.disabled = true;
+                
+                const serviceID = 'service_xo80mbs';
+                const templateID = 'template_ekhenf8';
+
+                emailjs.sendForm(serviceID, templateID, this)
+                    .then(() => {
+                        showNotification('Message sent successfully!', false);
+                        contactForm.reset();
+                    }, (err) => {
+                        showNotification('Failed to send message.', true);
+                        console.error('EmailJS Error:', JSON.stringify(err));
+                    }).finally(() => {
+                        btn.innerHTML = btnOriginalText;
+                        btn.disabled = false;
+                    });
+            });
+
+            // --- Custom Notification ---
+            const notification = document.getElementById('notification');
+            function showNotification(message, isError) {
+                notification.textContent = message;
+                const successColor = 'rgba(0, 178, 255, 0.8)';
+                const errorColor = 'rgba(255, 94, 0, 0.8)';
+                notification.style.backgroundColor = isError ? errorColor : successColor;
+                notification.style.borderColor = isError ? 'var(--primary-color)' : 'var(--secondary-color)';
+                notification.style.boxShadow = `0 0 20px ${isError ? 'var(--primary-color)' : 'var(--secondary-color)'}`;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 4000);
+            }
+            
+            // --- Phone number auto-formatting ---
+            const phoneInput = document.getElementById('phone');
+            phoneInput.addEventListener('input', (e) => {
+                let input = e.target.value.replace(/\D/g, '').substring(0, 10);
+                const areaCode = input.substring(0, 3);
+                const middle = input.substring(3, 6);
+                const last = input.substring(6, 10);
+
+                if (input.length > 6) {
+                    e.target.value = `(${areaCode}) ${middle}-${last}`;
+                } else if (input.length > 3) {
+                    e.target.value = `(${areaCode}) ${middle}`;
+                } else if (input.length > 0) {
+                    e.target.value = `(${areaCode}`;
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
+
